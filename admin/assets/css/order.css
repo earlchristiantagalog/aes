@@ -1,0 +1,718 @@
+ :root {
+     --primary-color: #1e3a5f;
+     --primary-light: #2d5a8c;
+     --secondary-color: #87CEEB;
+     --accent-color: #FFD700;
+     --text-dark: #1a202c;
+     --text-muted: #718096;
+     --light-bg: #f7fafc;
+     --cream: #edf2f7;
+     --warm: #e2e8f0;
+     --white: #FFFFFF;
+     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+     --radius: 4px;
+     --transition: 0.22s ease;
+     --shadow: 0 2px 16px rgba(30, 58, 95, 0.09);
+     --shadow-md: 0 6px 32px rgba(30, 58, 95, 0.13);
+ }
+
+ /* ---- Page Header ---- */
+ .adm-page-title {
+     font-size: 1.35rem;
+     font-weight: 700;
+     color: var(--text-dark);
+     letter-spacing: -0.02em;
+ }
+
+ .adm-page-sub {
+     font-size: 0.85rem;
+ }
+
+ /* ---- Stat Cards ---- */
+ .adm-stat-card {
+     display: flex;
+     align-items: center;
+     gap: 1rem;
+     background: var(--white);
+     border: 1px solid var(--warm);
+     border-radius: var(--radius);
+     padding: 1.1rem 1.25rem;
+     box-shadow: var(--shadow);
+     transition: all var(--transition);
+ }
+
+ .adm-stat-card:hover {
+     border-color: var(--secondary-color);
+     transform: translateY(-2px);
+ }
+
+ .adm-stat-icon {
+     width: 46px;
+     height: 46px;
+     border-radius: var(--radius);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1.2rem;
+     flex-shrink: 0;
+ }
+
+ .adm-stat-icon--blue {
+     background: rgba(30, 58, 95, 0.10);
+     color: var(--primary-color);
+ }
+
+ .adm-stat-icon--yellow {
+     background: rgba(255, 215, 0, 0.15);
+     color: #b7791f;
+ }
+
+ .adm-stat-icon--green {
+     background: rgba(39, 174, 96, 0.12);
+     color: #27ae60;
+ }
+
+ .adm-stat-icon--red {
+     background: rgba(229, 62, 62, 0.10);
+     color: #e53e3e;
+ }
+
+ .adm-stat-body {
+     display: flex;
+     flex-direction: column;
+     gap: 0.15rem;
+ }
+
+ .adm-stat-label {
+     font-size: 0.72rem;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: 0.07em;
+     color: var(--text-muted);
+ }
+
+ .adm-stat-value {
+     font-size: 1.5rem;
+     font-weight: 800;
+     color: var(--text-dark);
+     line-height: 1;
+     letter-spacing: -0.03em;
+ }
+
+ /* ---- Filter Card ---- */
+ .adm-filter-card {
+     background: var(--white);
+     border: 1px solid var(--warm);
+     border-radius: var(--radius);
+     padding: 1.25rem;
+     box-shadow: var(--shadow);
+ }
+
+ .adm-filter-label {
+     display: block;
+     font-size: 0.7rem;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: 0.07em;
+     color: var(--text-muted);
+     margin-bottom: 0.4rem;
+ }
+
+ .adm-search-wrap {
+     position: relative;
+ }
+
+ .adm-search-icon {
+     position: absolute;
+     left: 0.9rem;
+     top: 50%;
+     transform: translateY(-50%);
+     color: var(--text-muted);
+     font-size: 0.9rem;
+     pointer-events: none;
+ }
+
+ .adm-input {
+     width: 100%;
+     padding: 0.65rem 0.9rem;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     background: var(--white);
+     font-family: var(--font);
+     font-size: 0.875rem;
+     color: var(--text-dark);
+     outline: none;
+     transition: border-color var(--transition), box-shadow var(--transition);
+ }
+
+ .adm-input--search {
+     padding-left: 2.5rem;
+ }
+
+ .adm-input:focus {
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+ }
+
+ .adm-select {
+     width: 100%;
+     padding: 0.65rem 2rem 0.65rem 0.9rem;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+     -webkit-appearance: none;
+     font-family: var(--font);
+     font-size: 0.875rem;
+     color: var(--text-dark);
+     outline: none;
+     cursor: pointer;
+     transition: border-color var(--transition);
+ }
+
+ .adm-select:focus {
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+ }
+
+ /* ---- Buttons ---- */
+ .adm-btn {
+     display: inline-flex;
+     align-items: center;
+     padding: 0.62rem 1.2rem;
+     font-family: var(--font);
+     font-size: 0.83rem;
+     font-weight: 700;
+     letter-spacing: 0.03em;
+     border-radius: var(--radius);
+     cursor: pointer;
+     border: 1.5px solid transparent;
+     transition: all var(--transition);
+     white-space: nowrap;
+     text-decoration: none;
+ }
+
+ .adm-btn-primary {
+     background: var(--primary-color);
+     color: var(--white);
+     border-color: var(--primary-color);
+ }
+
+ .adm-btn-primary:hover {
+     background: #162d4a;
+     border-color: #162d4a;
+ }
+
+ .adm-btn-outline {
+     background: none;
+     color: var(--primary-color);
+     border-color: var(--primary-color);
+ }
+
+ .adm-btn-outline:hover {
+     background: var(--primary-color);
+     color: var(--white);
+ }
+
+ .adm-btn-ghost {
+     background: none;
+     color: var(--text-muted);
+     border-color: var(--warm);
+ }
+
+ .adm-btn-ghost:hover {
+     border-color: var(--primary-color);
+     color: var(--primary-color);
+ }
+
+ /* ---- Table Card ---- */
+ .adm-table-card {
+     background: var(--white);
+     border: 1px solid var(--warm);
+     border-radius: var(--radius);
+     box-shadow: var(--shadow);
+     overflow: hidden;
+ }
+
+ /* Tab Bar */
+ .adm-tab-bar {
+     display: flex;
+     border-bottom: 1px solid var(--warm);
+     overflow-x: auto;
+     scrollbar-width: none;
+     padding: 0 1rem;
+ }
+
+ .adm-tab-bar::-webkit-scrollbar {
+     display: none;
+ }
+
+ .adm-tab {
+     padding: 0.85rem 1rem;
+     background: none;
+     border: none;
+     border-bottom: 2px solid transparent;
+     font-family: var(--font);
+     font-size: 0.8rem;
+     font-weight: 600;
+     color: var(--text-muted);
+     cursor: pointer;
+     transition: all var(--transition);
+     white-space: nowrap;
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     margin-bottom: -1px;
+ }
+
+ .adm-tab:hover {
+     color: var(--primary-color);
+ }
+
+ .adm-tab.active {
+     color: var(--primary-color);
+     border-bottom-color: var(--primary-color);
+ }
+
+ .adm-tab--danger:hover {
+     color: #e53e3e;
+ }
+
+ .adm-tab--danger.active {
+     color: #e53e3e;
+     border-bottom-color: #e53e3e;
+ }
+
+ .adm-tab-count {
+     background: var(--cream);
+     color: var(--text-muted);
+     font-size: 0.65rem;
+     font-weight: 800;
+     padding: 0.1rem 0.45rem;
+     border-radius: 10px;
+ }
+
+ .adm-tab.active .adm-tab-count {
+     background: rgba(30, 58, 95, 0.12);
+     color: var(--primary-color);
+ }
+
+ /* Table */
+ .adm-table {
+     width: 100%;
+     border-collapse: collapse;
+     font-family: var(--font);
+     font-size: 0.875rem;
+ }
+
+ .adm-table thead th {
+     padding: 0.85rem 1rem;
+     background: var(--light-bg);
+     font-size: 0.7rem;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: 0.07em;
+     color: var(--text-muted);
+     border-bottom: 1px solid var(--warm);
+     white-space: nowrap;
+ }
+
+ .adm-th--check {
+     width: 44px;
+     text-align: center;
+ }
+
+ .adm-th--end {
+     text-align: right;
+     padding-right: 1.25rem !important;
+ }
+
+ .adm-checkbox {
+     width: 16px;
+     height: 16px;
+     accent-color: var(--primary-color);
+     cursor: pointer;
+ }
+
+ .adm-table tbody tr {
+     border-bottom: 1px solid var(--warm);
+     transition: background var(--transition);
+ }
+
+ .adm-table tbody tr:last-child {
+     border-bottom: none;
+ }
+
+ .adm-table tbody tr:hover {
+     background: var(--light-bg);
+ }
+
+ .adm-table td {
+     padding: 0.9rem 1rem;
+     color: var(--text-dark);
+     vertical-align: middle;
+ }
+
+ /* Order cell */
+ .adm-order-id {
+     font-weight: 700;
+     font-size: 0.85rem;
+     color: var(--primary-color);
+     letter-spacing: 0.02em;
+ }
+
+ .adm-order-date {
+     font-size: 0.73rem;
+     color: var(--text-muted);
+     margin-top: 0.15rem;
+ }
+
+ /* Customer cell */
+ .adm-customer {
+     display: flex;
+     align-items: center;
+     gap: 0.7rem;
+ }
+
+ .adm-cust-avatar {
+     width: 34px;
+     height: 34px;
+     border-radius: 50%;
+     background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+     color: var(--white);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.7rem;
+     font-weight: 800;
+     flex-shrink: 0;
+     letter-spacing: 0.04em;
+ }
+
+ .adm-cust-name {
+     font-weight: 600;
+     font-size: 0.85rem;
+     color: var(--text-dark);
+ }
+
+ .adm-cust-email {
+     font-size: 0.73rem;
+     color: var(--text-muted);
+ }
+
+ /* Total */
+ .adm-order-total {
+     font-weight: 800;
+     font-size: 0.92rem;
+     color: var(--text-dark);
+     letter-spacing: -0.02em;
+ }
+
+ /* Badges */
+ .adm-badge {
+     display: inline-flex;
+     align-items: center;
+     padding: 0.3rem 0.7rem;
+     border-radius: 20px;
+     font-size: 0.68rem;
+     font-weight: 700;
+     letter-spacing: 0.06em;
+     text-transform: uppercase;
+     white-space: nowrap;
+ }
+
+ .adm-badge--pending {
+     background: rgba(255, 215, 0, 0.15);
+     color: #9a6b00;
+ }
+
+ .adm-badge--processing {
+     background: rgba(30, 58, 95, 0.10);
+     color: var(--primary-color);
+ }
+
+ .adm-badge--shipped {
+     background: rgba(135, 206, 235, 0.25);
+     color: #1a6b9a;
+ }
+
+ .adm-badge--delivered {
+     background: rgba(39, 174, 96, 0.12);
+     color: #1a7a46;
+ }
+
+ .adm-badge--cancelled {
+     background: rgba(229, 62, 62, 0.10);
+     color: #c53030;
+ }
+
+ .adm-badge--refunded {
+     background: rgba(113, 128, 150, 0.12);
+     color: #4a5568;
+ }
+
+ .adm-badge--paid {
+     background: rgba(39, 174, 96, 0.12);
+     color: #1a7a46;
+ }
+
+ .adm-badge--unpaid {
+     background: rgba(229, 62, 62, 0.10);
+     color: #c53030;
+ }
+
+ /* Action buttons in table */
+ .adm-row-actions {
+     display: flex;
+     align-items: center;
+     justify-content: flex-end;
+     gap: 0.35rem;
+ }
+
+ .adm-action-btn {
+     width: 32px;
+     height: 32px;
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     background: none;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     color: var(--text-muted);
+     cursor: pointer;
+     transition: all var(--transition);
+     font-size: 0.85rem;
+ }
+
+ .adm-action-btn:hover {
+     background: var(--cream);
+     color: var(--primary-color);
+     border-color: var(--primary-color);
+ }
+
+ .adm-action-btn--danger:hover {
+     background: #fff5f5;
+     color: #e53e3e;
+     border-color: #e53e3e;
+ }
+
+ /* Empty state */
+ .adm-empty {
+     padding: 4rem 2rem;
+     text-align: center;
+     color: var(--text-muted);
+ }
+
+ .adm-empty-icon {
+     font-size: 3rem;
+     color: var(--warm);
+     margin-bottom: 1rem;
+ }
+
+ .adm-empty-title {
+     font-size: 1rem;
+     font-weight: 700;
+     color: var(--text-dark);
+     margin-bottom: 0.4rem;
+ }
+
+ .adm-empty-sub {
+     font-size: 0.875rem;
+     color: var(--text-muted);
+ }
+
+ /* Pagination */
+ .adm-table-footer {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 0.85rem 1.25rem;
+     border-top: 1px solid var(--warm);
+     background: var(--white);
+ }
+
+ .adm-foot-info {
+     font-size: 0.78rem;
+     color: var(--text-muted);
+ }
+
+ .adm-pagination {
+     display: flex;
+     align-items: center;
+     gap: 0.3rem;
+     list-style: none;
+     margin: 0;
+     padding: 0;
+ }
+
+ .adm-page-btn {
+     padding: 0.4rem 0.75rem;
+     background: none;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     font-family: var(--font);
+     font-size: 0.78rem;
+     font-weight: 600;
+     color: var(--text-muted);
+     cursor: pointer;
+     transition: all var(--transition);
+     display: flex;
+     align-items: center;
+     gap: 0.3rem;
+ }
+
+ .adm-page-item.active .adm-page-btn {
+     background: var(--primary-color);
+     border-color: var(--primary-color);
+     color: var(--white);
+ }
+
+ .adm-page-item:not(.active):not(.disabled) .adm-page-btn:hover {
+     border-color: var(--primary-color);
+     color: var(--primary-color);
+ }
+
+ .adm-page-item.disabled .adm-page-btn {
+     opacity: 0.4;
+     cursor: not-allowed;
+ }
+
+ /* ---- Modals ---- */
+ .adm-modal {
+     border: 1px solid var(--warm);
+     border-radius: var(--radius);
+     overflow: hidden;
+     box-shadow: var(--shadow-md);
+ }
+
+ .adm-modal-header {
+     display: flex;
+     align-items: flex-start;
+     justify-content: space-between;
+     padding: 1.25rem 1.5rem;
+     border-bottom: 1px solid var(--warm);
+     background: var(--light-bg);
+ }
+
+ .adm-modal-title {
+     font-size: 1rem;
+     font-weight: 700;
+     color: var(--text-dark);
+     margin: 0 0 0.15rem;
+ }
+
+ .adm-modal-sub {
+     font-size: 0.78rem;
+     color: var(--text-muted);
+ }
+
+ .adm-modal-close {
+     width: 32px;
+     height: 32px;
+     background: none;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     color: var(--text-muted);
+     transition: all var(--transition);
+     font-size: 0.82rem;
+ }
+
+ .adm-modal-close:hover {
+     background: var(--warm);
+     color: var(--text-dark);
+ }
+
+ .adm-modal-body {
+     padding: 1.5rem;
+ }
+
+ .adm-modal-footer {
+     display: flex;
+     justify-content: flex-end;
+     gap: 0.6rem;
+     padding: 1rem 1.5rem;
+     border-top: 1px solid var(--warm);
+ }
+
+ .adm-modal-loading {
+     display: flex;
+     align-items: center;
+     gap: 0.75rem;
+     color: var(--text-muted);
+     font-size: 0.875rem;
+ }
+
+ /* Status options in modal */
+ .adm-status-options {
+     display: flex;
+     flex-direction: column;
+     gap: 0.5rem;
+ }
+
+ .adm-status-option {
+     cursor: pointer;
+ }
+
+ .adm-status-option input {
+     display: none;
+ }
+
+ .adm-status-option-inner {
+     display: flex;
+     align-items: center;
+     gap: 1rem;
+     padding: 0.75rem 1rem;
+     border: 1.5px solid var(--warm);
+     border-radius: var(--radius);
+     transition: all var(--transition);
+ }
+
+ .adm-status-option:hover .adm-status-option-inner {
+     border-color: var(--secondary-color);
+     background: var(--light-bg);
+ }
+
+ .adm-status-option input:checked+.adm-status-option-inner {
+     border-color: var(--primary-color);
+     background: rgba(30, 58, 95, 0.04);
+ }
+
+ .adm-status-option-desc {
+     font-size: 0.78rem;
+     color: var(--text-muted);
+ }
+
+ /* ---- Toast ---- */
+ .adm-toast {
+     background: var(--white);
+     border-radius: var(--radius);
+     box-shadow: var(--shadow-md);
+     min-width: 300px;
+     overflow: hidden;
+ }
+
+ .adm-toast-icon {
+     padding: 0 0 0 1rem;
+     font-size: 1.1rem;
+     color: #27ae60;
+     flex-shrink: 0;
+ }
+
+ .adm-toast-icon--error {
+     color: #e53e3e;
+ }
+
+ .adm-toast-progress {
+     height: 3px;
+     background: var(--cream);
+ }
+
+ .adm-toast-bar {
+     height: 100%;
+     width: 100%;
+     background: var(--primary-color);
+     transition: width 4s linear;
+ }

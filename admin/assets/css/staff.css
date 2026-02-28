@@ -1,0 +1,208 @@
+/* Page Header Gradient */
+.page-header-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+}
+
+.page-header-gradient h2,
+.page-header-gradient p {
+    color: white !important;
+}
+
+.page-header-gradient .btn-light {
+    background: white;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.page-header-gradient .btn-light:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Stats Icons */
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+}
+
+/* Cards */
+.card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.card-title {
+    font-weight: 700;
+    color: #1a202c;
+}
+
+/* Table Enhancements */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.table thead th {
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 1rem;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background: #f7fafc;
+    transform: scale(1.01);
+}
+
+/* Badges */
+.badge {
+    font-weight: 600;
+    padding: 0.5em 1em;
+    border-radius: 8px;
+}
+
+/* Activity Timeline */
+.activity-timeline {
+    position: relative;
+}
+
+.activity-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.activity-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% - 10px);
+    background: #e2e8f0;
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    z-index: 1;
+    background: white;
+}
+
+.activity-icon i {
+    font-size: 1rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.5rem 2rem;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Fixed Header Adjustments */
+@media (min-width: 992px) {
+    #main-content {
+        margin-left: 260px;
+    }
+
+    .top-navbar.fixed-top {
+        left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+}
+
+/* Notification Badge Animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.badge.rounded-pill {
+    animation: pulse 2s infinite;
+}
