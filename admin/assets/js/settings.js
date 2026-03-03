@@ -20,37 +20,37 @@ function initializeTooltips() {
 }
 
 // Show Settings Tab
-function showSettingsTab(event, tabName) {
-    event.preventDefault();
+// function showSettingsTab(event, tabName) {
+//     event.preventDefault();
 
-    // Hide all panels with fade out
-    document.querySelectorAll('.settings-panel').forEach(panel => {
-        panel.style.display = 'none';
-    });
+//     // Hide all panels with fade out
+//     document.querySelectorAll('.settings-panel').forEach(panel => {
+//         panel.style.display = 'none';
+//     });
 
-    // Remove active class from all nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
+//     // Remove active class from all nav items
+//     document.querySelectorAll('.nav-item').forEach(item => {
+//         item.classList.remove('active');
+//     });
 
-    // Show selected panel with fade in
-    const selectedPanel = document.getElementById(tabName + '-settings');
-    if (selectedPanel) {
-        selectedPanel.style.display = 'block';
-    }
+//     // Show selected panel with fade in
+//     const selectedPanel = document.getElementById(tabName + '-settings');
+//     if (selectedPanel) {
+//         selectedPanel.style.display = 'block';
+//     }
 
-    // Add active class to clicked item
-    event.currentTarget.classList.add('active');
+//     // Add active class to clicked item
+//     event.currentTarget.classList.add('active');
 
-    // Update URL hash without scrolling
-    history.pushState(null, null, '#' + tabName);
+//     // Update URL hash without scrolling
+//     history.pushState(null, null, '#' + tabName);
 
-    // Scroll to top of content
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
+//     // Scroll to top of content
+//     window.scrollTo({
+//         top: 0,
+//         behavior: 'smooth'
+//     });
+// }
 
 // Preview Profile Picture
 function previewProfilePicture(input) {

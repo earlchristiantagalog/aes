@@ -124,7 +124,7 @@
 <script src="assets/js/index.js"></script>
 <script src="assets/js/products.js"></script>
 <script src="assets/js/fetch_icon.js"></script>
-<script src="assets/js/settings-improved.js"></script>
+<script src="assets/js/settings.js"></script>
 <script src="asstes/js/staff.js"></script>
 <script src="assets/js/warehouse.js"></script>
 

@@ -6,14 +6,14 @@ include 'includes/header.php';
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Products</h2>
-            <p class="text-muted mb-0">Manage your product inventory</p>
+            <h2 class="fw-bold mb-1" style="color:#1e3a5f;letter-spacing:-0.02em;">Products</h2>
+            <p class="text-muted mb-0" style="font-size:0.875rem;">Manage your product inventory</p>
         </div>
-        <div>
-            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        <div class="d-flex gap-2">
+            <button class="st-btn st-btn-outline" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 <i class="bi bi-tag me-2"></i>Add Category
             </button>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <button class="st-btn st-btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
                 <i class="bi bi-plus-circle me-2"></i>Add Product
             </button>
         </div>
@@ -22,156 +22,133 @@ include 'includes/header.php';
     <!-- Statistics Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 small">Total Products</p>
-                            <h4 class="mb-0" id="stat-total">0</h4>
-                        </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-box-seam text-primary fs-4"></i>
-                        </div>
-                    </div>
+            <div class="prd-stat-card">
+                <div class="prd-stat-icon" style="background:rgba(30,58,95,0.1);">
+                    <i class="bi bi-box-seam" style="color:#1e3a5f;"></i>
+                </div>
+                <div>
+                    <div class="prd-stat-label">Total Products</div>
+                    <div class="prd-stat-value" id="stat-total">0</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 small">In Stock</p>
-                            <h4 class="mb-0" id="stat-in-stock">0</h4>
-                        </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-check-circle text-success fs-4"></i>
-                        </div>
-                    </div>
+            <div class="prd-stat-card">
+                <div class="prd-stat-icon" style="background:rgba(39,174,96,0.1);">
+                    <i class="bi bi-check-circle" style="color:#27ae60;"></i>
+                </div>
+                <div>
+                    <div class="prd-stat-label">In Stock</div>
+                    <div class="prd-stat-value" id="stat-in-stock">0</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 small">Low Stock</p>
-                            <h4 class="mb-0" id="stat-low-stock">0</h4>
-                        </div>
-                        <div class="bg-warning bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
-                        </div>
-                    </div>
+            <div class="prd-stat-card">
+                <div class="prd-stat-icon" style="background:rgba(255,215,0,0.15);">
+                    <i class="bi bi-exclamation-triangle" style="color:#b8860b;"></i>
+                </div>
+                <div>
+                    <div class="prd-stat-label">Low Stock</div>
+                    <div class="prd-stat-value" id="stat-low-stock">0</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 small">Out of Stock</p>
-                            <h4 class="mb-0" id="stat-out-of-stock">0</h4>
-                        </div>
-                        <div class="bg-danger bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-x-circle text-danger fs-4"></i>
-                        </div>
-                    </div>
+            <div class="prd-stat-card">
+                <div class="prd-stat-icon" style="background:rgba(229,62,62,0.1);">
+                    <i class="bi bi-x-circle" style="color:#e53e3e;"></i>
+                </div>
+                <div>
+                    <div class="prd-stat-label">Out of Stock</div>
+                    <div class="prd-stat-value" id="stat-out-of-stock">0</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filters and Actions -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Search products..." id="searchProduct">
+    <div class="prd-filters-card mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="prd-search-wrap">
+                    <i class="bi bi-search prd-search-icon"></i>
+                    <input type="text" class="prd-search-input" placeholder="Search products..." id="searchProduct">
                 </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="categoryFilter">
-                        <option value="">All Categories</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="food">Food & Beverage</option>
-                        <option value="books">Books</option>
-                        <option value="home">Home & Garden</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="stockFilter">
-                        <option value="">All Stock Status</option>
-                        <option value="in-stock">In Stock</option>
-                        <option value="low-stock">Low Stock</option>
-                        <option value="out-of-stock">Out of Stock</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="statusFilter">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <div class="col-md-3 text-end">
-                    <button class="btn btn-outline-secondary me-2" onclick="loadProducts(1)">
-                        <i class="bi bi-funnel me-1"></i>Filter
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="resetFilters()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Reset
-                    </button>
-                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="prd-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="food">Food &amp; Beverage</option>
+                    <option value="books">Books</option>
+                    <option value="home">Home &amp; Garden</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="prd-select" id="stockFilter">
+                    <option value="">All Stock Status</option>
+                    <option value="in-stock">In Stock</option>
+                    <option value="low-stock">Low Stock</option>
+                    <option value="out-of-stock">Out of Stock</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="prd-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex justify-content-end gap-2">
+                <button class="st-btn st-btn-outline" onclick="loadProducts(1)">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <button class="st-btn st-btn-ghost" onclick="resetFilters()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Products Table -->
     <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
+        <div class="prd-table-card">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                <table class="prd-table">
+                    <thead>
                         <tr>
-                            <th class="border-0 ps-4">
-                                <input type="checkbox" class="form-check-input">
+                            <th style="width:48px;">
+                                <input type="checkbox" class="prd-checkbox">
                             </th>
-                            <th class="border-0">Product</th>
-                            <th class="border-0">SKU</th>
-                            <th class="border-0">Category</th>
-                            <th class="border-0">Price</th>
-                            <th class="border-0">Stock</th>
-                            <th class="border-0">Status</th>
-                            <th class="border-0 text-end pe-4">Actions</th>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-
+                        <!-- JS-rendered rows go here -->
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <div class="card-footer bg-white border-top">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted small">
-                    Showing 1 to 6 of 1,234 products
-                </div>
+            <!-- Pagination -->
+            <div class="prd-pagination">
+                <span class="prd-page-info">Showing 1 to 6 of 1,234 products</span>
                 <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
+                    <ul class="prd-pager">
+                        <li class="disabled"><a href="#">Previous</a></li>
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">Next</a></li>
                     </ul>
                 </nav>
             </div>
@@ -377,50 +354,44 @@ include 'includes/header.php';
     </div>
 </div>
 
-<!-- Add Categoy Modal -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title fw-bold">📁 Add New Category</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content st-modal">
+            <div class="st-modal-head">
+                <h5 class="st-modal-title"><i class="bi bi-tag me-2"></i>Add New Category</h5>
+                <button type="button" class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
             </div>
             <form id="addCategoryForm">
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Category Name</label>
-                        <input type="text" class="form-control" name="category_name" placeholder="e.g., Gadgets">
+                <div class="st-modal-body">
+                    <div class="st-field">
+                        <label class="st-label">Category Name</label>
+                        <input type="text" class="st-input" name="category_name" placeholder="e.g. Gadgets" required>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Category Icon</label>
-                        <div class="input-group shadow-sm">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i id="iconPreview" class="bi bi-collection"></i>
-                            </span>
-
-                            <select class="form-select border-start-0" name="category_icon" id="iconSelector" onchange="updateIconPreview()">
+                    <div class="st-field">
+                        <label class="st-label">Category Icon</label>
+                        <div class="prd-icon-group">
+                            <span class="prd-icon-preview"><i id="iconPreview" class="bi bi-collection"></i></span>
+                            <select class="st-select" name="category_icon" id="iconSelector" onchange="updateIconPreview()" style="border-radius:0 4px 4px 0;border-left:none;">
                                 <option value="bi-collection">Loading Icons...</option>
                             </select>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Description</label>
-                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    <div class="st-field">
+                        <label class="st-label">Description</label>
+                        <textarea class="st-input st-textarea" name="description" rows="2"></textarea>
                     </div>
-
-                    <div class="mb-0">
-                        <label class="form-label fw-bold small d-block">Status</label>
-                        <div class="form-check form-switch mt-2">
-                            <input class="form-check-input" type="checkbox" name="status" id="catStatus" checked>
-                            <label class="form-check-label" for="catStatus">Active</label>
-                        </div>
+                    <div class="st-field">
+                        <label class="st-label d-block">Status</label>
+                        <label class="st-toggle" style="margin-top:0.4rem;">
+                            <input type="checkbox" name="status" id="catStatus" checked>
+                            <span class="st-toggle-track"></span>
+                        </label>
+                        <span class="st-hint ms-2">Active</span>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-light">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary px-4">Save Category</button>
+                <div class="st-modal-foot">
+                    <button type="button" class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="st-btn st-btn-primary">Save Category</button>
                 </div>
             </form>
         </div>

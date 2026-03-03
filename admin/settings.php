@@ -1,28 +1,15 @@
 <?php
-// Database connection (adjust with your credentials)
 $conn = new mysqli('localhost', 'root', '', 'aes');
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// 1. HANDLE ADDING
 if (isset($_POST['save_shipping'])) {
-    $name = $conn->real_escape_string($_POST['shipping_name']);
-    $price = $conn->real_escape_string($_POST['shipping_price']);
+    $name    = $conn->real_escape_string($_POST['shipping_name']);
+    $price   = $conn->real_escape_string($_POST['shipping_price']);
     $courier = $conn->real_escape_string($_POST['shipping_courier']);
-
-    $sql = "INSERT INTO shipping_zones (shipping_name, shipping_price, shipping_courier) 
-            VALUES ('$name', '$price', '$courier')";
-
-    if ($conn->query($sql)) {
-        // Redirect to same page with a hash to keep the tab open
-        header("Location: " . $_SERVER['PHP_SELF'] . "#shipping-settings");
-        exit;
-    }
+    $conn->query("INSERT INTO shipping_zones (shipping_name, shipping_price, shipping_courier) VALUES ('$name', '$price', '$courier')");
+    header("Location: " . $_SERVER['PHP_SELF'] . "#shipping-settings");
+    exit;
 }
-
-// 2. HANDLE DELETING (If you want it in the same file)
 if (isset($_GET['delete_shipping_id'])) {
     $id = intval($_GET['delete_shipping_id']);
     $conn->query("DELETE FROM shipping_zones WHERE id = $id");
@@ -30,724 +17,575 @@ if (isset($_GET['delete_shipping_id'])) {
     exit;
 }
 
-// Fetch all settings into an array
 $settings = [];
 $res = mysqli_query($conn, "SELECT method_key, is_active FROM payment_settings");
-while ($row = mysqli_fetch_assoc($res)) {
-    $settings[$row['method_key']] = $row['is_active'];
-}
+while ($row = mysqli_fetch_assoc($res)) $settings[$row['method_key']] = $row['is_active'];
+
 include 'includes/header.php';
 ?>
-<!-- Settings Content -->
-<div class="settings-container">
-    <div class="settings-layout">
-        <!-- Settings Sidebar -->
-        <aside class="settings-sidebar">
-            <div class="sidebar-inner">
-                <div class="sidebar-section">
-                    <div class="section-label">Personal</div>
-                    <nav class="settings-nav">
-                        <a href="#profile" class="nav-item active" onclick="showSettingsTab(event, 'profile')">
-                            <i class="bi bi-person-circle"></i>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#account" class="nav-item" onclick="showSettingsTab(event, 'account')">
-                            <i class="bi bi-shield-lock"></i>
-                            <span>Security</span>
-                        </a>
-                        <a href="#notifications" class="nav-item" onclick="showSettingsTab(event, 'notifications')">
-                            <i class="bi bi-bell"></i>
-                            <span>Notifications</span>
-                        </a>
-                        <a href="#appearance" class="nav-item" onclick="showSettingsTab(event, 'appearance')">
-                            <i class="bi bi-palette"></i>
-                            <span>Appearance</span>
-                        </a>
-                    </nav>
+
+<!-- ============================================================
+     SETTINGS PAGE
+============================================================ -->
+<div class="st-wrap">
+    <div class="st-layout">
+
+        <!-- ===== LEFT NAV ===== -->
+        <aside class="st-sidebar">
+            <div class="st-sidebar-inner">
+
+                <div class="st-nav-group">
+                    <span class="st-nav-label">Personal</span>
+                    <a href="#" class="st-nav-item active" data-tab="profile">
+                        <i class="bi bi-person-circle"></i><span>Profile</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="account">
+                        <i class="bi bi-shield-lock"></i><span>Security</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="notifications">
+                        <i class="bi bi-bell"></i><span>Notifications</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="appearance">
+                        <i class="bi bi-palette"></i><span>Appearance</span>
+                    </a>
                 </div>
 
-                <div class="sidebar-section">
-                    <div class="section-label">Business</div>
-                    <nav class="settings-nav">
-                        <a href="#business" class="nav-item" onclick="showSettingsTab(event, 'business')">
-                            <i class="bi bi-building"></i>
-                            <span>Business Info</span>
-                        </a>
-                        <a href="#shipping" class="nav-item" onclick="showSettingsTab(event, 'shipping')">
-                            <i class="bi bi-truck"></i>
-                            <span>Shipping</span>
-                        </a>
-                        <a href="#payment" class="nav-item" onclick="showSettingsTab(event, 'payment')">
-                            <i class="bi bi-credit-card"></i>
-                            <span>Payments</span>
-                        </a>
-                        <a href="#vouchers" class="nav-item" onclick="showSettingsTab(event, 'vouchers')">
-                            <i class="bi bi-gift"></i>
-                            <span>Vouchers</span>
-                        </a>
-                    </nav>
+                <div class="st-nav-group">
+                    <span class="st-nav-label">Business</span>
+                    <a href="#" class="st-nav-item" data-tab="business">
+                        <i class="bi bi-building"></i><span>Business Info</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="shipping">
+                        <i class="bi bi-truck"></i><span>Shipping</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="payment">
+                        <i class="bi bi-credit-card"></i><span>Payments</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="vouchers">
+                        <i class="bi bi-gift"></i><span>Vouchers</span>
+                    </a>
                 </div>
 
-                <div class="sidebar-section">
-                    <div class="section-label">Marketing</div>
-                    <nav class="settings-nav">
-                        <a href="#announcement" class="nav-item" onclick="showSettingsTab(event, 'announcement')">
-                            <i class="bi bi-megaphone"></i>
-                            <span>Announcements</span>
-                        </a>
-                        <a href="#flashsale" class="nav-item" onclick="showSettingsTab(event, 'flashsale')">
-                            <i class="bi bi-lightning-charge"></i>
-                            <span>Flash Sales</span>
-                        </a>
-                    </nav>
+                <div class="st-nav-group">
+                    <span class="st-nav-label">Marketing</span>
+                    <a href="#" class="st-nav-item" data-tab="announcement">
+                        <i class="bi bi-megaphone"></i><span>Announcements</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="flashsale">
+                        <i class="bi bi-lightning-charge"></i><span>Flash Sales</span>
+                    </a>
                 </div>
 
-                <div class="sidebar-section">
-                    <div class="section-label">Advanced</div>
-                    <nav class="settings-nav">
-                        <a href="#integrations" class="nav-item" onclick="showSettingsTab(event, 'integrations')">
-                            <i class="bi bi-plug"></i>
-                            <span>Integrations</span>
-                        </a>
-                        <a href="#preferences" class="nav-item" onclick="showSettingsTab(event, 'preferences')">
-                            <i class="bi bi-sliders"></i>
-                            <span>Preferences</span>
-                        </a>
-                    </nav>
+                <div class="st-nav-group">
+                    <span class="st-nav-label">Advanced</span>
+                    <a href="#" class="st-nav-item" data-tab="integrations">
+                        <i class="bi bi-plug"></i><span>Integrations</span>
+                    </a>
+                    <a href="#" class="st-nav-item" data-tab="preferences">
+                        <i class="bi bi-sliders"></i><span>Preferences</span>
+                    </a>
                 </div>
+
             </div>
         </aside>
 
-        <!-- Settings Content Area -->
-        <div class="settings-content">
-            <!-- Profile Settings -->
-            <div id="profile-settings" class="settings-panel">
-                <div class="panel-header">
-                    <h2 class="panel-title">Profile Information</h2>
-                    <p class="panel-description">Update your personal information and profile picture</p>
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="st-content">
+
+            <!-- ---- PROFILE ---- -->
+            <div class="st-panel active" id="tab-profile">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Profile Information</h2>
+                    <p class="st-panel-sub">Update your personal information and profile picture</p>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-section">
-                        <label class="form-label">Profile Picture</label>
-                        <div class="profile-upload">
-                            <div class="profile-preview">
-                                <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=fff&size=120" id="profilePreview" alt="Profile">
-                                <div class="upload-overlay">
-                                    <i class="bi bi-camera"></i>
-                                </div>
+                <div class="st-card">
+                    <div class="st-card-section">
+                        <label class="st-label">Profile Picture</label>
+                        <div class="st-avatar-row">
+                            <div class="st-avatar-preview">
+                                <img src="https://ui-avatars.com/api/?name=Admin+User&background=1e3a5f&color=fff&size=120" id="profilePreview" alt="Profile">
+                                <div class="st-avatar-overlay"><i class="bi bi-camera"></i></div>
                             </div>
-                            <div class="upload-info">
-                                <input type="file" id="profilePicture" accept="image/*" onchange="previewProfilePicture(this)" hidden>
-                                <button class="btn-upload" onclick="document.getElementById('profilePicture').click()">
+                            <div class="st-avatar-meta">
+                                <input type="file" id="profilePicture" accept="image/*" hidden onchange="previewProfilePicture(this)">
+                                <button class="st-btn st-btn-outline" onclick="document.getElementById('profilePicture').click()">
                                     <i class="bi bi-upload me-2"></i>Upload Photo
                                 </button>
-                                <small class="upload-hint">JPG, PNG or GIF. Max size 2MB</small>
+                                <small class="st-hint">JPG, PNG or GIF. Max size 2MB</small>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-section">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">First Name</label>
-                                <input type="text" class="form-input" value="Admin" placeholder="Enter first name">
+                    <div class="st-card-section">
+                        <div class="st-form-grid">
+                            <div class="st-field">
+                                <label class="st-label">First Name</label>
+                                <input type="text" class="st-input" value="Admin" placeholder="First name">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" class="form-input" value="User" placeholder="Enter last name">
+                            <div class="st-field">
+                                <label class="st-label">Last Name</label>
+                                <input type="text" class="st-input" value="User" placeholder="Last name">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" class="form-input" value="admin@example.com" placeholder="Enter email">
+                            <div class="st-field">
+                                <label class="st-label">Email Address</label>
+                                <input type="email" class="st-input" value="admin@aes.ph" placeholder="Email">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-input" value="+1 (555) 123-4567" placeholder="Enter phone">
+                            <div class="st-field">
+                                <label class="st-label">Phone Number</label>
+                                <input type="tel" class="st-input" value="+63 912 345 6789" placeholder="Phone">
+                            </div>
+                            <div class="st-field st-field--full">
+                                <label class="st-label">Bio</label>
+                                <textarea class="st-input st-textarea" rows="3" placeholder="Tell us about yourself..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-section">
-                        <div class="form-group">
-                            <label class="form-label">Bio</label>
-                            <textarea class="form-input" rows="4" placeholder="Tell us about yourself..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="card-actions">
-                        <button class="btn-primary">Save Changes</button>
-                        <button class="btn-secondary">Cancel</button>
+                    <div class="st-card-footer">
+                        <button class="st-btn st-btn-primary">Save Changes</button>
+                        <button class="st-btn st-btn-ghost">Cancel</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Account & Security Settings -->
-            <div id="account-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Security Settings</h2>
-                    <p class="panel-description">Manage your password and security preferences</p>
+            <!-- ---- SECURITY ---- -->
+            <div class="st-panel" id="tab-account">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Security Settings</h2>
+                    <p class="st-panel-sub">Manage your password and account security</p>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Change Password</h3>
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Change Password</h3>
                     </div>
-                    <div class="card-section">
-                        <div class="form-group">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" class="form-input" placeholder="Enter current password">
+                    <div class="st-card-section">
+                        <div class="st-field st-field--full">
+                            <label class="st-label">Current Password</label>
+                            <input type="password" class="st-input" placeholder="Enter current password">
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">New Password</label>
-                                <input type="password" class="form-input" placeholder="Enter new password">
+                        <div class="st-form-grid" style="margin-top:1rem;">
+                            <div class="st-field">
+                                <label class="st-label">New Password</label>
+                                <input type="password" class="st-input" placeholder="New password">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" class="form-input" placeholder="Confirm new password">
+                            <div class="st-field">
+                                <label class="st-label">Confirm Password</label>
+                                <input type="password" class="st-input" placeholder="Confirm password">
                             </div>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="btn-primary">Update Password</button>
+                    <div class="st-card-footer">
+                        <button class="st-btn st-btn-primary">Update Password</button>
                     </div>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Two-Factor Authentication</h3>
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Two-Factor Authentication</h3>
                     </div>
-                    <div class="card-section">
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Enable 2FA</div>
-                                <div class="setting-desc">Add an extra layer of security to your account</div>
+                    <div class="st-card-section">
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Enable 2FA</div>
+                                <div class="st-toggle-sub">Add an extra layer of security to your account</div>
                             </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="enable2FA">
-                                <span class="toggle-slider"></span>
+                            <label class="st-toggle"><input type="checkbox"><span class="st-toggle-track"></span></label>
+                        </div>
+                    </div>
+                    <div class="st-card-footer">
+                        <button class="st-btn st-btn-ghost">Configure 2FA</button>
+                    </div>
+                </div>
+
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Active Sessions</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <div class="st-session-list">
+                            <div class="st-session">
+                                <div class="st-session-icon"><i class="bi bi-laptop"></i></div>
+                                <div class="st-session-info">
+                                    <div class="st-session-title">Windows · Chrome</div>
+                                    <div class="st-session-meta">Manila, Philippines · Current session</div>
+                                </div>
+                                <span class="st-badge st-badge--active">Active</span>
+                            </div>
+                            <div class="st-session">
+                                <div class="st-session-icon"><i class="bi bi-phone"></i></div>
+                                <div class="st-session-info">
+                                    <div class="st-session-title">iPhone · Safari</div>
+                                    <div class="st-session-meta">Quezon City, Philippines · 2 hours ago</div>
+                                </div>
+                                <button class="st-btn st-btn-danger-outline">Revoke</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="st-card st-card--danger">
+                    <div class="st-card-head st-card-head--danger">
+                        <h3 class="st-card-title">Danger Zone</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Delete Account</div>
+                                <div class="st-toggle-sub">Permanently delete your account and all data. This cannot be undone.</div>
+                            </div>
+                            <button class="st-btn st-btn-danger">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ---- NOTIFICATIONS ---- -->
+            <div class="st-panel" id="tab-notifications">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Notification Preferences</h2>
+                    <p class="st-panel-sub">Choose how and when you get notified</p>
+                </div>
+
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Email Notifications</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <?php
+                        $notifs = [
+                            ['Order Updates',       'Receive emails about new orders and status changes', true],
+                            ['Low Stock Alerts',    'Get notified when products are running low',          true],
+                            ['Customer Messages',   'Notifications for customer inquiries',                true],
+                            ['Marketing Emails',    'Promotional content and feature updates',             false],
+                            ['Weekly Reports',      'Summary of sales and store performance',              true],
+                        ];
+                        foreach ($notifs as $n): ?>
+                            <div class="st-toggle-row">
+                                <div class="st-toggle-info">
+                                    <div class="st-toggle-title"><?= $n[0] ?></div>
+                                    <div class="st-toggle-sub"><?= $n[1] ?></div>
+                                </div>
+                                <label class="st-toggle"><input type="checkbox" <?= $n[2] ? 'checked' : '' ?>><span class="st-toggle-track"></span></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Push Notifications</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Browser Notifications</div>
+                                <div class="st-toggle-sub">Desktop notifications for important events</div>
+                            </div>
+                            <label class="st-toggle"><input type="checkbox" checked><span class="st-toggle-track"></span></label>
+                        </div>
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Mobile Push</div>
+                                <div class="st-toggle-sub">Push notifications on mobile app</div>
+                            </div>
+                            <label class="st-toggle"><input type="checkbox"><span class="st-toggle-track"></span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ---- APPEARANCE ---- -->
+            <div class="st-panel" id="tab-appearance">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Appearance</h2>
+                    <p class="st-panel-sub">Customize the look and feel of your dashboard</p>
+                </div>
+
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Color Scheme</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <div class="st-theme-grid">
+                            <label class="st-theme-opt">
+                                <input type="radio" name="theme" value="light" checked>
+                                <div class="st-theme-card"><i class="bi bi-sun"></i><span>Light</span></div>
+                            </label>
+                            <label class="st-theme-opt">
+                                <input type="radio" name="theme" value="dark">
+                                <div class="st-theme-card"><i class="bi bi-moon"></i><span>Dark</span></div>
+                            </label>
+                            <label class="st-theme-opt">
+                                <input type="radio" name="theme" value="auto">
+                                <div class="st-theme-card"><i class="bi bi-circle-half"></i><span>Auto</span></div>
                             </label>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="btn-secondary">Configure 2FA</button>
-                    </div>
-                </div>
-
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Active Sessions</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="session-list">
-                            <div class="session-item">
-                                <div class="session-icon">
-                                    <i class="bi bi-laptop"></i>
-                                </div>
-                                <div class="session-info">
-                                    <div class="session-title">Windows • Chrome</div>
-                                    <div class="session-meta">Manila, Philippines • Current session</div>
-                                </div>
-                                <span class="session-badge active">Active</span>
+                    <div class="st-card-section">
+                        <div class="st-form-grid">
+                            <div class="st-field">
+                                <label class="st-label">Primary Color</label>
+                                <input type="color" class="st-color-input" value="#1e3a5f">
                             </div>
-                            <div class="session-item">
-                                <div class="session-icon">
-                                    <i class="bi bi-phone"></i>
-                                </div>
-                                <div class="session-info">
-                                    <div class="session-title">iPhone • Safari</div>
-                                    <div class="session-meta">Quezon City, Philippines • 2 hours ago</div>
-                                </div>
-                                <button class="btn-danger-outline">Revoke</button>
+                            <div class="st-field">
+                                <label class="st-label">Sidebar Style</label>
+                                <select class="st-select">
+                                    <option>Expanded</option>
+                                    <option>Collapsed</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="settings-card danger-zone">
-                    <div class="card-header">
-                        <h3 class="card-title">Danger Zone</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Delete Account</div>
-                                <div class="setting-desc">Permanently delete your account and all data</div>
+                    <div class="st-card-section">
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Compact Mode</div>
+                                <div class="st-toggle-sub">Reduce spacing for more content on screen</div>
                             </div>
-                            <button class="btn-danger">Delete Account</button>
+                            <label class="st-toggle"><input type="checkbox"><span class="st-toggle-track"></span></label>
                         </div>
+                        <div class="st-toggle-row">
+                            <div class="st-toggle-info">
+                                <div class="st-toggle-title">Show Grid Lines</div>
+                                <div class="st-toggle-sub">Display borders in data tables</div>
+                            </div>
+                            <label class="st-toggle"><input type="checkbox" checked><span class="st-toggle-track"></span></label>
+                        </div>
+                    </div>
+                    <div class="st-card-footer">
+                        <button class="st-btn st-btn-primary">Apply Changes</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Business Settings -->
-            <div id="business-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Business Information</h2>
-                    <p class="panel-description">Manage your business details and localization</p>
+            <!-- ---- BUSINESS INFO ---- -->
+            <div class="st-panel" id="tab-business">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Business Information</h2>
+                    <p class="st-panel-sub">Manage your business details and localization</p>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-section">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Business Name</label>
-                                <input type="text" class="form-input" value="My Store" placeholder="Enter business name">
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Business Details</h3>
+                    </div>
+                    <div class="st-card-section">
+                        <div class="st-form-grid">
+                            <div class="st-field">
+                                <label class="st-label">Business Name</label>
+                                <input type="text" class="st-input" value="Aralin Educational Supplies" placeholder="Business name">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Business Type</label>
-                                <select class="form-input">
+                            <div class="st-field">
+                                <label class="st-label">Business Type</label>
+                                <select class="st-select">
                                     <option>Retail</option>
                                     <option>Wholesale</option>
                                     <option>Services</option>
-                                    <option>Manufacturing</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Tax ID / VAT Number</label>
-                                <input type="text" class="form-input" placeholder="Enter tax ID">
+                            <div class="st-field">
+                                <label class="st-label">Tax ID / VAT Number</label>
+                                <input type="text" class="st-input" placeholder="Tax ID">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Registration Number</label>
-                                <input type="text" class="form-input" placeholder="Enter registration number">
+                            <div class="st-field">
+                                <label class="st-label">Registration Number</label>
+                                <input type="text" class="st-input" placeholder="Reg. number">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card-section">
-                        <div class="form-group">
-                            <label class="form-label">Business Address</label>
-                            <textarea class="form-input" rows="3" placeholder="Enter business address"></textarea>
-                        </div>
-                        <div class="form-grid-3">
-                            <div class="form-group">
-                                <label class="form-label">City</label>
-                                <input type="text" class="form-input" placeholder="Enter city">
+                            <div class="st-field st-field--full">
+                                <label class="st-label">Business Address</label>
+                                <textarea class="st-input st-textarea" rows="2" placeholder="Full address"></textarea>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">State/Province</label>
-                                <input type="text" class="form-input" placeholder="Enter state">
+                            <div class="st-field">
+                                <label class="st-label">City</label>
+                                <input type="text" class="st-input" placeholder="City">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Postal Code</label>
-                                <input type="text" class="form-input" placeholder="Enter postal code">
+                            <div class="st-field">
+                                <label class="st-label">Postal Code</label>
+                                <input type="text" class="st-input" placeholder="Postal code">
                             </div>
                         </div>
                     </div>
-
-                    <div class="card-actions">
-                        <button class="btn-primary">Save Changes</button>
-                    </div>
+                    <div class="st-card-footer"><button class="st-btn st-btn-primary">Save Changes</button></div>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Currency & Localization</h3>
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Currency &amp; Localization</h3>
                     </div>
-                    <div class="card-section">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Currency</label>
-                                <select class="form-input">
-                                    <option>USD - US Dollar</option>
-                                    <option>EUR - Euro</option>
-                                    <option>GBP - British Pound</option>
+                    <div class="st-card-section">
+                        <div class="st-form-grid">
+                            <div class="st-field">
+                                <label class="st-label">Currency</label>
+                                <select class="st-select">
                                     <option>PHP - Philippine Peso</option>
+                                    <option>USD - US Dollar</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Time Zone</label>
-                                <select class="form-input">
+                            <div class="st-field">
+                                <label class="st-label">Time Zone</label>
+                                <select class="st-select">
                                     <option>Asia/Manila (GMT+8)</option>
-                                    <option>America/New_York (GMT-5)</option>
-                                    <option>Europe/London (GMT+0)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Date Format</label>
-                                <select class="form-input">
+                            <div class="st-field">
+                                <label class="st-label">Date Format</label>
+                                <select class="st-select">
                                     <option>MM/DD/YYYY</option>
                                     <option>DD/MM/YYYY</option>
-                                    <option>YYYY-MM-DD</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Number Format</label>
-                                <select class="form-input">
+                            <div class="st-field">
+                                <label class="st-label">Number Format</label>
+                                <select class="st-select">
                                     <option>1,234.56</option>
                                     <option>1.234,56</option>
-                                    <option>1 234,56</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="btn-primary">Save Changes</button>
-                    </div>
+                    <div class="st-card-footer"><button class="st-btn st-btn-primary">Save Changes</button></div>
                 </div>
             </div>
 
-            <!-- Notifications Settings -->
-            <div id="notifications-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Notification Preferences</h2>
-                    <p class="panel-description">Choose how you want to be notified</p>
+            <!-- ---- SHIPPING ---- -->
+            <div class="st-panel" id="tab-shipping">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Shipping Configuration</h2>
+                    <p class="st-panel-sub">Manage delivery zones and courier rates</p>
                 </div>
 
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Email Notifications</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Order Updates</div>
-                                <div class="setting-desc">Receive emails about new orders and updates</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Low Stock Alerts</div>
-                                <div class="setting-desc">Get notified when products are running low</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Customer Messages</div>
-                                <div class="setting-desc">Notifications for customer inquiries</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Marketing Emails</div>
-                                <div class="setting-desc">Promotional content and updates</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Weekly Reports</div>
-                                <div class="setting-desc">Summary of sales and performance</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Push Notifications</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Browser Notifications</div>
-                                <div class="setting-desc">Desktop notifications for important events</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Mobile Push</div>
-                                <div class="setting-desc">Push notifications on mobile app</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Appearance Settings -->
-            <div id="appearance-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Appearance</h2>
-                    <p class="panel-description">Customize the look and feel of your dashboard</p>
-                </div>
-
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Theme Settings</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="form-group">
-                            <label class="form-label">Color Scheme</label>
-                            <div class="theme-options">
-                                <label class="theme-option">
-                                    <input type="radio" name="theme" value="light" checked>
-                                    <div class="theme-card">
-                                        <i class="bi bi-sun"></i>
-                                        <span>Light</span>
-                                    </div>
-                                </label>
-                                <label class="theme-option">
-                                    <input type="radio" name="theme" value="dark">
-                                    <div class="theme-card">
-                                        <i class="bi bi-moon"></i>
-                                        <span>Dark</span>
-                                    </div>
-                                </label>
-                                <label class="theme-option">
-                                    <input type="radio" name="theme" value="auto">
-                                    <div class="theme-card">
-                                        <i class="bi bi-circle-half"></i>
-                                        <span>Auto</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Primary Color</label>
-                                <input type="color" class="form-input-color" value="#2563eb">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Sidebar Style</label>
-                                <select class="form-input">
-                                    <option>Expanded</option>
-                                    <option>Collapsed</option>
-                                    <option>Overlay</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-primary">Apply Changes</button>
-                    </div>
-                </div>
-
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Display Options</h3>
-                    </div>
-                    <div class="card-section">
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Compact Mode</div>
-                                <div class="setting-desc">Reduce spacing for more content</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <div class="setting-info">
-                                <div class="setting-title">Show Grid Lines</div>
-                                <div class="setting-desc">Display borders in tables</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Shipping Settings -->
-            <div id="shipping-settings" class="settings-panel" style="display:none;">
-
-                <div class="panel-header">
-                    <h2 class="panel-title">Shipping Configuration</h2>
-                    <p class="panel-description">Manage delivery zones and rates</p>
-                </div>
-
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Shipping Zones</h3>
-
-                        <button class="btn-primary-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#addShippingModal">
-
-                            <i class="bi bi-plus-circle me-1"></i>
-                            Add Shipping Zone
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Shipping Zones</h3>
+                        <button class="st-btn st-btn-primary st-btn--sm" data-bs-toggle="modal" data-bs-target="#addShippingModal">
+                            <i class="bi bi-plus-circle me-1"></i>Add Zone
                         </button>
                     </div>
-
-                    <div class="card-section">
-                        <div id="shippingList">
-                            <?php
-                            $result = $conn->query("SELECT * FROM shipping_zones ORDER BY id DESC");
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                            ?>
-                                    <div class="session-item d-flex justify-content-between align-items-center mb-2">
-                                        <div class="session-info">
-                                            <div class="session-title"><strong><?php echo htmlspecialchars($row['shipping_name']); ?></strong></div>
-                                            <div class="session-meta text-muted">
-                                                Courier: <?php echo htmlspecialchars($row['shipping_courier']); ?> • ₱<?php echo number_format($row['shipping_price'], 2); ?>
-                                            </div>
+                    <div class="st-card-section">
+                        <?php
+                        $result = $conn->query("SELECT * FROM shipping_zones ORDER BY id DESC");
+                        if ($result->num_rows > 0):
+                            while ($row = $result->fetch_assoc()): ?>
+                                <div class="st-session">
+                                    <div class="st-session-icon"><i class="bi bi-truck"></i></div>
+                                    <div class="st-session-info">
+                                        <div class="st-session-title"><?= htmlspecialchars($row['shipping_name']) ?></div>
+                                        <div class="st-session-meta">
+                                            <?= htmlspecialchars($row['shipping_courier']) ?> &nbsp;·&nbsp; ₱<?= number_format($row['shipping_price'], 2) ?>
                                         </div>
-                                        <a href="?delete_shipping_id=<?php echo $row['id']; ?>"
-                                            class="text-danger text-decoration-none"
-                                            onclick="return confirm('Remove this shipping zone?')">
-                                            <i class="bi bi-trash"></i> Remove
-                                        </a>
                                     </div>
-                            <?php
-                                }
-                            } else {
-                                echo '<p class="text-muted">No shipping zones added.</p>';
-                            }
-                            ?>
-                        </div>
+                                    <a href="?delete_shipping_id=<?= $row['id'] ?>"
+                                        class="st-btn st-btn-danger-outline"
+                                        onclick="return confirm('Remove this zone?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            <?php endwhile;
+                        else: ?>
+                            <div class="st-empty">
+                                <i class="bi bi-truck"></i>
+                                <p>No shipping zones added yet.</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Payment Settings -->
-            <div id="payment-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Payment Methods</h2>
-                    <p class="panel-description">Manage your payment gateways and options for your customers</p>
+            <!-- ---- PAYMENTS ---- -->
+            <div class="st-panel" id="tab-payment">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Payment Methods</h2>
+                    <p class="st-panel-sub">Enable or disable payment gateways for checkout</p>
                 </div>
-                <div class="settings-card">
-                    <div class="card-section">
-                        <div class="payment-methods">
-                            <?php
-                            // Fetch all payment settings - Ensure DB name matches (aes or es)
-                            $query = "SELECT * FROM aes.payment_settings ORDER BY id ASC";
-                            $result = mysqli_query($conn, $query);
 
+                <div class="st-card">
+                    <div class="st-card-section">
+                        <div class="st-payment-list">
+                            <?php
+                            $query  = "SELECT * FROM aes.payment_settings ORDER BY id ASC";
+                            $result = mysqli_query($conn, $query);
                             if (mysqli_num_rows($result) > 0):
                                 while ($row = mysqli_fetch_assoc($result)):
                                     $isActive = $row['is_active'] == 1;
-
-                                    // Assign icons
-                                    $icon = "bi-credit-card";
-                                    if ($row['method_key'] == 'payment_gcash') $icon = "bi-wallet2 text-primary";
-                                    if ($row['method_key'] == 'payment_maya') $icon = "bi-vignette text-success";
-                                    if ($row['method_key'] == 'payment_cod') $icon = "bi-cash-stack text-warning";
-                                    if ($row['method_key'] == 'payment_paypal') $icon = "bi-paypal text-info";
-                                    if ($row['method_key'] == 'payment_bank') $icon = "bi-bank text-info";
+                                    $icon = match ($row['method_key']) {
+                                        'payment_gcash'  => 'bi-wallet2',
+                                        'payment_maya'   => 'bi-vignette',
+                                        'payment_cod'    => 'bi-cash-stack',
+                                        'payment_paypal' => 'bi-paypal',
+                                        'payment_bank'   => 'bi-bank',
+                                        default          => 'bi-credit-card',
+                                    };
                             ?>
-                                    <div class="payment-card" id="card-<?= $row['method_key'] ?>" style="opacity: <?= $isActive ? '1' : '0.6' ?>;">
-                                        <div class="payment-icon"><i class="bi <?= $icon ?>"></i></div>
-                                        <div class="payment-info">
-                                            <h4><?= htmlspecialchars($row['display_name']) ?></h4>
-                                            <p class="mb-2">Enable or disable this gateway</p>
-
-                                            <button type="button" class="btn btn-sm btn-light border"
+                                    <div class="st-payment-row" id="card-<?= $row['method_key'] ?>" style="opacity:<?= $isActive ? '1' : '0.55' ?>">
+                                        <div class="st-payment-icon"><i class="bi <?= $icon ?>"></i></div>
+                                        <div class="st-payment-info">
+                                            <div class="st-payment-name"><?= htmlspecialchars($row['display_name']) ?></div>
+                                            <button class="st-edit-link"
                                                 onclick="openEditModal('<?= $row['method_key'] ?>', '<?= htmlspecialchars($row['display_name']) ?>')">
-                                                <i class="bi bi-pencil-square me-1"></i> Edit Details
+                                                <i class="bi bi-pencil me-1"></i>Edit details
                                             </button>
                                         </div>
-                                        <label class="toggle-switch">
-                                            <input type="checkbox"
-                                                name="<?= $row['method_key'] ?>"
-                                                class="payment-toggle"
-                                                <?= $isActive ? 'checked' : '' ?>>
-                                            <span class="toggle-slider"></span>
+                                        <label class="st-toggle">
+                                            <input type="checkbox" name="<?= $row['method_key'] ?>" class="payment-toggle" <?= $isActive ? 'checked' : '' ?>>
+                                            <span class="st-toggle-track"></span>
                                         </label>
                                     </div>
-                            <?php
-                                endwhile;
-                            endif;
-                            ?>
-                        </div>
-
-                        <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Edit <span id="modal-method-name"></span> Details</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <input type="hidden" id="modal-method-key">
-                                        <div class="mb-3">
-                                            <label class="form-label">Customer Instructions (Visible on Checkout)</label>
-                                            <textarea id="modal-instructions" class="form-control" rows="6" placeholder="Enter bank account details, GCash number, or handling fees..."></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-primary" onclick="saveInstructions()">Save Changes</button>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endwhile;
+                            endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Voucher Settings -->
-            <div id="vouchers-settings" class="settings-panel">
-                <div class="panel-header d-flex justify-content-between align-items-center">
+            <!-- ---- VOUCHERS ---- -->
+            <div class="st-panel" id="tab-vouchers">
+                <div class="st-panel-head st-panel-head--row">
                     <div>
-                        <h2 class="panel-title">Voucher Management</h2>
-                        <p class="panel-description">Create and manage discount codes for your customers</p>
+                        <h2 class="st-panel-title">Voucher Management</h2>
+                        <p class="st-panel-sub">Create and manage discount codes</p>
                     </div>
-                    <button class="btn btn-primary" onclick="openVoucherModal()">
-                        <i class="bi bi-plus-lg me-1"></i> Add New Voucher
+                    <button class="st-btn st-btn-primary" onclick="openVoucherModal()">
+                        <i class="bi bi-plus-circle me-2"></i>New Voucher
                     </button>
                 </div>
 
-                <div class="settings-card mt-4">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                <div class="st-card">
+                    <div class="st-card-section st-card-section--flush">
+                        <table class="st-table">
+                            <thead>
                                 <tr>
                                     <th>Code</th>
                                     <th>Discount</th>
-                                    <th>Target User</th>
-                                    <th>Status</th>
+                                    <th>Target</th>
                                     <th>Expiry</th>
-                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                $v_query = "SELECT v.*, u.full_name FROM aes.vouchers v 
-                                LEFT JOIN users u ON v.user_id = u.id 
-                                ORDER BY v.created_at DESC";
-                                $v_res = mysqli_query($conn, $v_query);
+                                $v_res = mysqli_query($conn, "SELECT v.*, u.full_name FROM aes.vouchers v LEFT JOIN users u ON v.user_id = u.id ORDER BY v.created_at DESC");
                                 while ($v = mysqli_fetch_assoc($v_res)):
-                                    $is_expired = strtotime($v['expiry_date']) < time();
+                                    $expired = strtotime($v['expiry_date']) < time();
                                 ?>
                                     <tr>
                                         <td><strong><?= $v['code'] ?></strong></td>
                                         <td><?= $v['discount_type'] == 'fixed' ? '₱' . $v['discount_amount'] : $v['discount_amount'] . '%' ?></td>
-                                        <td><?= $v['full_name'] ?? '<span class="text-muted">Global</span>' ?></td>
-                                        <td>
-                                            <?php if ($v['is_used']): ?>
-                                                <span class="badge bg-secondary">Used</span>
-                                            <?php elseif ($is_expired): ?>
-                                                <span class="badge bg-danger">Expired</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-success">Active</span>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><?= $v['full_name'] ?? '<span class="st-muted">Global</span>' ?></td>
                                         <td><?= date('M d, Y', strtotime($v['expiry_date'])) ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteVoucher(<?= $v['id'] ?>)">
+                                            <?php if ($v['is_used']): ?>
+                                                <span class="st-chip st-chip--gray">Used</span>
+                                            <?php elseif ($expired): ?>
+                                                <span class="st-chip st-chip--red">Expired</span>
+                                            <?php else: ?>
+                                                <span class="st-chip st-chip--green">Active</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <button class="st-icon-btn st-icon-btn--danger" onclick="deleteVoucher(<?= $v['id'] ?>)" title="Delete">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -759,99 +597,92 @@ include 'includes/header.php';
                 </div>
             </div>
 
-            <!-- Announcement Settings -->
-            <div id="announcement-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Announcements</h2>
-                    <p class="panel-description">Manage site-wide announcements and banners</p>
-                </div>
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Active Announcements</h3>
-                        <button class="btn-primary-sm" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
-                            <i class="bi bi-plus-circle me-1"></i>New Announcement
-                        </button>
+            <!-- ---- ANNOUNCEMENTS ---- -->
+            <div class="st-panel" id="tab-announcement">
+                <div class="st-panel-head st-panel-head--row">
+                    <div>
+                        <h2 class="st-panel-title">Announcements</h2>
+                        <p class="st-panel-sub">Manage site-wide banners and notices</p>
                     </div>
-                    <div class="card-section">
-                        <div class="empty-state">
-                            <i class="bi bi-megaphone"></i>
+                    <button class="st-btn st-btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                        <i class="bi bi-plus-circle me-2"></i>New Announcement
+                    </button>
+                </div>
+                <div class="st-card">
+                    <div class="st-card-section">
+                        <div class="st-empty"><i class="bi bi-megaphone"></i>
                             <p>No active announcements</p>
-                            <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">Create First Announcement</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Flash Sale Settings -->
-            <div id="flashsale-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Flash Sales</h2>
-                    <p class="panel-description">Create time-limited promotional campaigns</p>
-                </div>
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Active Flash Sales</h3>
-                        <button class="btn-primary-sm" data-bs-toggle="modal" data-bs-target="#addFlashSaleModal">
-                            <i class="bi bi-plus-circle me-1"></i>Create Flash Sale
-                        </button>
+            <!-- ---- FLASH SALES ---- -->
+            <div class="st-panel" id="tab-flashsale">
+                <div class="st-panel-head st-panel-head--row">
+                    <div>
+                        <h2 class="st-panel-title">Flash Sales</h2>
+                        <p class="st-panel-sub">Create time-limited promotional campaigns</p>
                     </div>
-                    <div class="card-section">
-                        <div class="empty-state">
-                            <i class="bi bi-lightning-charge"></i>
+                    <button class="st-btn st-btn-primary" data-bs-toggle="modal" data-bs-target="#addFlashSaleModal">
+                        <i class="bi bi-plus-circle me-2"></i>Create Flash Sale
+                    </button>
+                </div>
+                <div class="st-card">
+                    <div class="st-card-section">
+                        <div class="st-empty"><i class="bi bi-lightning-charge"></i>
                             <p>No active flash sales</p>
-                            <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#addFlashSaleModal">Create First Flash Sale</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Integrations Settings -->
-            <div id="integrations-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">Integrations</h2>
-                    <p class="panel-description">Connect third-party services and APIs</p>
+            <!-- ---- INTEGRATIONS ---- -->
+            <div class="st-panel" id="tab-integrations">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">Integrations</h2>
+                    <p class="st-panel-sub">Connect third-party services and APIs</p>
                 </div>
-                <div class="settings-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Payment Gateways</h3>
+                <div class="st-card">
+                    <div class="st-card-head">
+                        <h3 class="st-card-title">Payment Gateways</h3>
                     </div>
-                    <div class="card-section">
-                        <div class="integration-grid">
-                            <div class="integration-card">
-                                <i class="bi bi-credit-card integration-icon"></i>
+                    <div class="st-card-section">
+                        <div class="st-integration-grid">
+                            <div class="st-integration-card">
+                                <i class="bi bi-credit-card"></i>
                                 <h4>Stripe</h4>
-                                <span class="badge-success">Connected</span>
+                                <span class="st-chip st-chip--green">Connected</span>
                             </div>
-                            <div class="integration-card">
-                                <i class="bi bi-paypal integration-icon"></i>
+                            <div class="st-integration-card">
+                                <i class="bi bi-paypal"></i>
                                 <h4>PayPal</h4>
-                                <span class="badge-gray">Not Connected</span>
+                                <span class="st-chip st-chip--gray">Not Connected</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Preferences Settings -->
-            <div id="preferences-settings" class="settings-panel" style="display: none;">
-                <div class="panel-header">
-                    <h2 class="panel-title">General Preferences</h2>
-                    <p class="panel-description">Customize your application behavior</p>
+            <!-- ---- PREFERENCES ---- -->
+            <div class="st-panel" id="tab-preferences">
+                <div class="st-panel-head">
+                    <h2 class="st-panel-title">General Preferences</h2>
+                    <p class="st-panel-sub">Customize application behavior</p>
                 </div>
-                <div class="settings-card">
-                    <div class="card-section">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Language</label>
-                                <select class="form-input">
+                <div class="st-card">
+                    <div class="st-card-section">
+                        <div class="st-form-grid">
+                            <div class="st-field">
+                                <label class="st-label">Language</label>
+                                <select class="st-select">
                                     <option>English</option>
-                                    <option>Spanish</option>
-                                    <option>French</option>
+                                    <option>Filipino</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Items Per Page</label>
-                                <select class="form-input">
+                            <div class="st-field">
+                                <label class="st-label">Items Per Page</label>
+                                <select class="st-select">
                                     <option>10</option>
                                     <option>25</option>
                                     <option>50</option>
@@ -860,178 +691,238 @@ include 'includes/header.php';
                             </div>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="btn-primary">Save Preferences</button>
-                    </div>
+                    <div class="st-card-footer"><button class="st-btn st-btn-primary">Save Preferences</button></div>
                 </div>
             </div>
-        </div>
+
+        </main>
     </div>
 </div>
 </main>
 
-<!-- Modals (simplified) -->
-<div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Announcement</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Title</label>
-                    <input type="text" class="form-input" placeholder="Announcement title">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-input" rows="3" placeholder="Announcement message"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn-primary">Create</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- ============================================================
+     MODALS
+============================================================ -->
 
-<div class="modal fade" id="addFlashSaleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Flash Sale</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Flash Sale Name</label>
-                    <input type="text" class="form-input" placeholder="e.g., Weekend Mega Sale">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Discount Value</label>
-                    <input type="number" class="form-input" placeholder="50">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn-primary">Create</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Shipping Modal -->
+<!-- Add Shipping -->
 <div class="modal fade" id="addShippingModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title">Add Shipping Zone</h5>
-                <button type="button" class="btn-close"
-                    data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content st-modal">
+            <div class="st-modal-head">
+                <h5 class="st-modal-title">Add Shipping Zone</h5>
+                <button class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
             </div>
-
-            <form id="shippingForm" method="POST">
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <label class="form-label">Shipping Name</label>
-                        <input type="text"
-                            class="form-input"
-                            name="shipping_name"
-                            id="shippingName"
-                            placeholder="Express or Standard" required>
+            <form method="POST">
+                <div class="st-modal-body">
+                    <div class="st-field">
+                        <label class="st-label">Zone Name</label>
+                        <input type="text" class="st-input" name="shipping_name" placeholder="e.g. Metro Manila" required>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Shipping Price (₱)</label>
-                        <input type="number"
-                            class="form-input"
-                            name="shipping_price"
-                            id="shippingPrice"
-                            placeholder="50" required>
+                    <div class="st-field">
+                        <label class="st-label">Price (₱)</label>
+                        <input type="number" class="st-input" name="shipping_price" placeholder="50" required>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Shipping Courier</label>
-                        <input type="text"
-                            class="form-input"
-                            name="shipping_courier"
-                            id="shippingCourier"
-                            placeholder="J&T Express, LBC, NinjaVan" required>
+                    <div class="st-field">
+                        <label class="st-label">Courier</label>
+                        <input type="text" class="st-input" name="shipping_courier" placeholder="J&T Express, LBC…" required>
                     </div>
-
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button"
-                        class="btn-secondary"
-                        data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                    <button type="submit" class="btn-primary" name="save_shipping">
-                        Save Shipping
-                    </button>
+                <div class="st-modal-foot">
+                    <button type="button" class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="st-btn st-btn-primary" name="save_shipping">Save Zone</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Edit Payment -->
+<div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
+        <div class="modal-content st-modal">
+            <div class="st-modal-head">
+                <h5 class="st-modal-title">Edit <span id="modal-method-name"></span></h5>
+                <button class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="st-modal-body">
+                <input type="hidden" id="modal-method-key">
+                <div class="st-field">
+                    <label class="st-label">Customer Instructions (shown at checkout)</label>
+                    <textarea id="modal-instructions" class="st-input st-textarea" rows="5" placeholder="e.g. GCash number, bank account details…"></textarea>
+                </div>
+            </div>
+            <div class="st-modal-foot">
+                <button class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                <button class="st-btn st-btn-primary" onclick="saveInstructions()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add Voucher -->
 <div class="modal fade" id="addVoucherModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
         <form id="voucherForm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Voucher</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content st-modal">
+                <div class="st-modal-head">
+                    <h5 class="st-modal-title">Create New Voucher</h5>
+                    <button type="button" class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Voucher Code</label>
-                        <input type="text" name="code" class="form-control" placeholder="e.g. WELCOME2024" required>
+                <div class="st-modal-body">
+                    <div class="st-field">
+                        <label class="st-label">Voucher Code</label>
+                        <input type="text" name="code" class="st-input" placeholder="e.g. WELCOME2024" required>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Discount Value</label>
-                            <input type="number" name="amount" class="form-control" required>
+                    <div class="st-form-grid">
+                        <div class="st-field">
+                            <label class="st-label">Discount Value</label>
+                            <input type="number" name="amount" class="st-input" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Type</label>
-                            <select name="type" class="form-select">
+                        <div class="st-field">
+                            <label class="st-label">Type</label>
+                            <select name="type" class="st-select">
                                 <option value="fixed">Fixed (₱)</option>
                                 <option value="percentage">Percentage (%)</option>
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Assign to Specific User (Optional)</label>
-                        <select name="user_id" class="form-select">
+                    <div class="st-field">
+                        <label class="st-label">Assign to User (optional)</label>
+                        <select name="user_id" class="st-select">
                             <option value="">Everyone (Global)</option>
                             <?php
-                            $u_query = "SELECT id, full_name FROM users ORDER BY full_name ASC";
-                            $u_res = mysqli_query($conn, $u_query);
-                            while ($u = mysqli_fetch_assoc($u_res)) {
-                                echo "<option value='{$u['id']}'>{$u['full_name']}</option>";
-                            }
+                            $u_res = mysqli_query($conn, "SELECT id, full_name FROM users ORDER BY full_name ASC");
+                            while ($u = mysqli_fetch_assoc($u_res)) echo "<option value='{$u['id']}'>{$u['full_name']}</option>";
                             ?>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Expiry Date</label>
-                        <input type="date" name="expiry" class="form-control" required>
+                    <div class="st-field">
+                        <label class="st-label">Expiry Date</label>
+                        <input type="date" name="expiry" class="st-input" required>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary w-100">Create Voucher</button>
+                <div class="st-modal-foot">
+                    <button type="button" class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="st-btn st-btn-primary">Create Voucher</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-<?php
-include 'includes/footer.php';
-?>
+
+<!-- Announcement / Flash Sale (simple) -->
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content st-modal">
+            <div class="st-modal-head">
+                <h5 class="st-modal-title">Create Announcement</h5>
+                <button class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="st-modal-body">
+                <div class="st-field"><label class="st-label">Title</label><input type="text" class="st-input" placeholder="Announcement title"></div>
+                <div class="st-field"><label class="st-label">Message</label><textarea class="st-input st-textarea" rows="3" placeholder="Message…"></textarea></div>
+            </div>
+            <div class="st-modal-foot">
+                <button class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                <button class="st-btn st-btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addFlashSaleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content st-modal">
+            <div class="st-modal-head">
+                <h5 class="st-modal-title">Create Flash Sale</h5>
+                <button class="st-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="st-modal-body">
+                <div class="st-field"><label class="st-label">Name</label><input type="text" class="st-input" placeholder="e.g. Weekend Mega Sale"></div>
+                <div class="st-field"><label class="st-label">Discount (%)</label><input type="number" class="st-input" placeholder="50"></div>
+            </div>
+            <div class="st-modal-foot">
+                <button class="st-btn st-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                <button class="st-btn st-btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+</style>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+    // Tab switching
+    document.querySelectorAll('.st-nav-item').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const tab = link.dataset.tab;
+
+            document.querySelectorAll('.st-nav-item').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.st-panel').forEach(p => p.classList.remove('active'));
+
+            link.classList.add('active');
+            const panel = document.getElementById('tab-' + tab);
+            if (panel) panel.classList.add('active');
+
+            // Update URL hash without scroll
+            history.replaceState(null, '', '#' + tab);
+        });
+    });
+
+    // Restore tab from hash
+    (function() {
+        const hash = location.hash.replace('#', '');
+        if (hash) {
+            const link = document.querySelector(`.st-nav-item[data-tab="${hash}"]`);
+            if (link) link.click();
+        }
+    })();
+
+    // Avatar preview
+    function previewProfilePicture(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('profilePreview').src = e.target.result;
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Payment modal helpers
+    function openEditModal(key, name) {
+        document.getElementById('modal-method-key').value = key;
+        document.getElementById('modal-method-name').textContent = name;
+        document.getElementById('modal-instructions').value = '';
+        new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+    }
+
+    function saveInstructions() {
+        bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
+    }
+
+    // Payment toggle opacity
+    document.querySelectorAll('.payment-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const card = this.closest('[id^="card-"]');
+            if (card) card.style.opacity = this.checked ? '1' : '0.55';
+            // TODO: fire AJAX to update payment_settings
+        });
+    });
+
+    // Voucher modal
+    function openVoucherModal() {
+        new bootstrap.Modal(document.getElementById('addVoucherModal')).show();
+    }
+
+    function deleteVoucher(id) {
+        if (!confirm('Delete this voucher?')) return;
+        // TODO: AJAX delete
+    }
+</script>
+
+<?php include 'includes/footer.php'; ?>
