@@ -16,13 +16,25 @@ if ($isLoggedIn) {
         'school'      => $_SESSION['school'] ?? 'Not Specified',
         'joined'      => $_SESSION['joined_date'] ?? date('Y'),
         'avatar'      => $_SESSION['avatar'] ?? '',
-        'orders'      => 12,
         'wishlist'    => 5,
         'total_spent' => 2480.00,
         'phone'       => $_SESSION['phone'] ?? 'Not Provided', // Added for the Overview tab
         'address'     => $_SESSION['address'] ?? 'No address set' // Added for the Overview tab
     ];
+    // Assuming $user_id is already defined (e.g., $user_id = $order['user_id'];)
+    $stats_query = "SELECT 
+                    COUNT(id) as total_orders, 
+                    SUM(total_amount) as total_spent 
+                FROM orders 
+                WHERE user_id = '$user_id' 
+                AND order_status != 'cancelled'"; // Optional: exclude cancelled orders
 
+    $stats_res = mysqli_query($conn, $stats_query);
+    $stats = mysqli_fetch_assoc($stats_res);
+
+    // Update your $user array or use $stats directly
+    $user['orders'] = $stats['total_orders'] ?? 0;
+    $user['total_spent'] = $stats['total_spent'] ?? 0;
     // 2. Fetch Real Addresses using MySQLi
     $savedAddresses = [];
     $sql = "SELECT * FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC";
@@ -42,12 +54,46 @@ if ($isLoggedIn) {
     exit();
 }
 
-$recentOrders = [
-    ['id' => 'ORD-2026-0042', 'date' => 'Feb 18, 2026', 'items' => 3, 'total' => 1250.00,  'status' => 'delivered'],
-    ['id' => 'ORD-2026-0031', 'date' => 'Feb 05, 2026', 'items' => 7, 'total' => 4380.00,  'status' => 'delivered'],
-    ['id' => 'ORD-2026-0018', 'date' => 'Jan 22, 2026', 'items' => 2, 'total' => 890.00,   'status' => 'delivered'],
-    ['id' => 'ORD-2026-0009', 'date' => 'Jan 10, 2026', 'items' => 5, 'total' => 3100.00,  'status' => 'delivered'],
-];
+// --- 1. OVERVIEW FETCH (Limit 3) ---
+$recentOrdersQuery = "SELECT o.*, (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count 
+                      FROM orders o WHERE o.user_id = '$user_id' 
+                      ORDER BY o.created_at DESC LIMIT 3";
+$recentRes = mysqli_query($conn, $recentOrdersQuery);
+$recentOrders = [];
+while ($row = mysqli_fetch_assoc($recentRes)) {
+    $recentOrders[] = [
+        'id' => $row['id'],
+        'order_number' => $row['order_number'],
+        'date' => date('M d, Y', strtotime($row['created_at'])),
+        'total' => $row['total_amount'],
+        'status' => strtolower($row['order_status']),
+        'items' => $row['item_count']
+    ];
+}
+
+// --- 2. ORDERS PAGE FETCH (All Items + Filter) ---
+$statusFilter = $_GET['status'] ?? 'all';
+$filterSql = "";
+if ($statusFilter !== 'all') {
+    $safeStatus = mysqli_real_escape_string($conn, $statusFilter);
+    $filterSql = " AND o.order_status = '$safeStatus'";
+}
+
+$allOrdersQuery = "SELECT o.*, (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count 
+                   FROM orders o WHERE o.user_id = '$user_id' $filterSql 
+                   ORDER BY o.created_at DESC";
+$allRes = mysqli_query($conn, $allOrdersQuery);
+$allOrders = [];
+while ($row = mysqli_fetch_assoc($allRes)) {
+    $allOrders[] = [
+        'id' => $row['id'],
+        'order_number' => $row['order_number'],
+        'date' => date('M d, Y', strtotime($row['created_at'])),
+        'total' => $row['total_amount'],
+        'status' => strtolower($row['order_status']),
+        'items' => $row['item_count']
+    ];
+}
 
 // REMOVED: The hardcoded $savedAddresses = [...] that was here before.
 
@@ -98,7 +144,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
                         <?php echo htmlspecialchars($user['name'] ?? 'Guest'); ?>
                     </h3>
 
-                    <span class="pf-avatar-role">
+                    <span class="pf-avatar-role text-uppercase">
                         <?php echo htmlspecialchars($user['role'] ?? 'Member'); ?>
                     </span>
 
@@ -111,12 +157,14 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
                     </span>
 
                     <div class="pf-avatar-since">
-                        Joined in <?php echo htmlspecialchars($user['joined'] ?? '2024'); ?>
+                        Joined in <?php echo htmlspecialchars($user['joined'] ?? '-'); ?>
                     </div>
                 </div>
                 <div class="pf-stat-cards">
                     <div class="pf-stat-card">
-                        <span class="pf-stat-num"><?php echo $user['orders']; ?></span>
+                        <span class="pf-stat-num">
+                            <?php echo number_format($user['orders']); ?>
+                        </span>
                         <span class="pf-stat-lbl">Orders</span>
                     </div>
                     <div class="pf-stat-card">
@@ -124,7 +172,9 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
                         <span class="pf-stat-lbl">Wishlist</span>
                     </div>
                     <div class="pf-stat-card pf-stat-card--wide">
-                        <span class="pf-stat-num">&#8369;<?php echo number_format($user['total_spent'], 2); ?></span>
+                        <span class="pf-stat-num">
+                            &#8369;<?php echo number_format($user['total_spent'], 2); ?>
+                        </span>
                         <span class="pf-stat-lbl">Total Spent</span>
                     </div>
                 </div>
@@ -251,7 +301,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
                                 <?php foreach (array_slice($recentOrders, 0, 3) as $order): ?>
                                     <div class="pf-order-row">
                                         <div class="pf-order-id">
-                                            <span class="pf-order-num"><?php echo $order['id']; ?></span>
+                                            <span class="pf-order-num"><?php echo $order['order_number']; ?></span>
                                             <span class="pf-order-date"><?php echo $order['date']; ?></span>
                                         </div>
                                         <div class="pf-order-meta">
@@ -299,42 +349,60 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'overview';
                     <div class="pf-panel">
                         <div class="pf-panel-header">
                             <h2 class="pf-panel-title">My Orders</h2>
-                            <span class="pf-panel-sub"><?php echo $user['orders']; ?> orders total</span>
+                            <span class="pf-panel-sub"><?php echo count($allOrders); ?> orders total</span>
                         </div>
+
                         <div class="pf-filter-bar">
-                            <button class="pf-filter-btn active">All</button>
-                            <button class="pf-filter-btn">Delivered</button>
-                            <button class="pf-filter-btn">Processing</button>
-                            <button class="pf-filter-btn">Cancelled</button>
+                            <a href="?tab=orders&status=all"
+                                class="pf-filter-btn <?php echo $statusFilter === 'all' ? 'active' : ''; ?>"
+                                style="text-decoration: none;">All</a>
+
+                            <a href="?tab=orders&status=delivered"
+                                class="pf-filter-btn <?php echo $statusFilter === 'delivered' ? 'active' : ''; ?>"
+                                style="text-decoration: none;">Delivered</a>
+
+                            <a href="?tab=orders&status=processing"
+                                class="pf-filter-btn <?php echo $statusFilter === 'processing' ? 'active' : ''; ?>"
+                                style="text-decoration: none;">Processing</a>
+
+                            <a href="?tab=orders&status=cancelled"
+                                class="pf-filter-btn <?php echo $statusFilter === 'cancelled' ? 'active' : ''; ?>"
+                                style="text-decoration: none;">Cancelled</a>
                         </div>
+
                         <div class="pf-order-list pf-order-list--full">
-                            <?php foreach ($recentOrders as $order): ?>
-                                <div class="pf-order-row pf-order-row--card">
-                                    <div class="pf-order-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                                            <line x1="3" y1="6" x2="21" y2="6" />
-                                            <path d="M16 10a4 4 0 01-8 0" />
-                                        </svg>
+                            <?php if (!empty($allOrders)): ?>
+                                <?php foreach ($allOrders as $order): ?>
+                                    <div class="pf-order-row pf-order-row--card">
+                                        <div class="pf-order-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                                                <line x1="3" y1="6" x2="21" y2="6" />
+                                                <path d="M16 10a4 4 0 01-8 0" />
+                                            </svg>
+                                        </div>
+                                        <div class="pf-order-id">
+                                            <span class="pf-order-num">#<?php echo $order['order_number']; ?></span>
+                                            <span class="pf-order-date"><?php echo $order['date']; ?></span>
+                                        </div>
+                                        <div class="pf-order-meta">
+                                            <span class="pf-order-items"><?php echo $order['items']; ?> item<?php echo $order['items'] > 1 ? 's' : ''; ?></span>
+                                        </div>
+                                        <div class="pf-order-total">&#8369;<?php echo number_format($order['total'], 2); ?></div>
+                                        <span class="pf-status pf-status--<?php echo $order['status']; ?>"><?php echo ucfirst($order['status']); ?></span>
+                                        <div class="pf-order-actions">
+                                            <a href="order-detail.php?id=<?php echo $order['id']; ?>" class="pf-btn-sm pf-btn-sm--primary">View Details</a>
+                                            <button class="pf-btn-sm pf-btn-sm--ghost">Reorder</button>
+                                        </div>
                                     </div>
-                                    <div class="pf-order-id">
-                                        <span class="pf-order-num"><?php echo $order['id']; ?></span>
-                                        <span class="pf-order-date"><?php echo $order['date']; ?></span>
-                                    </div>
-                                    <div class="pf-order-meta">
-                                        <span class="pf-order-items"><?php echo $order['items']; ?> item<?php echo $order['items'] > 1 ? 's' : ''; ?></span>
-                                    </div>
-                                    <div class="pf-order-total">&#8369;<?php echo number_format($order['total'], 2); ?></div>
-                                    <span class="pf-status pf-status--<?php echo $order['status']; ?>"><?php echo ucfirst($order['status']); ?></span>
-                                    <div class="pf-order-actions">
-                                        <a href="order-detail.php?id=<?php echo $order['id']; ?>" class="pf-btn-sm pf-btn-sm--primary">View Details</a>
-                                        <button class="pf-btn-sm pf-btn-sm--ghost">Reorder</button>
-                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center p-5">
+                                    <p class="text-muted">No orders found for this category.</p>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
-
                 <?php elseif ($activeTab === 'wishlist'): ?>
                     <div class="pf-panel">
                         <div class="pf-panel-header">

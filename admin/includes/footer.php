@@ -10,6 +10,9 @@
             placeholder: 'Detailed product description with features and specifications...',
             tabsize: 2,
             height: 200,
+            codemirror: { // Ensure syntax highlighting if you do use code view
+                theme: 'monokai'
+            },
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
@@ -20,6 +23,9 @@
                 ['view', ['fullscreen', 'codeview', 'help']]
             ]
         });
+
+        // Forced Fix: Ensure it doesn't start in Code View
+        $('#productDescription').summernote('codeview.deactivate');
     });
 
     $(document).ready(function() {
@@ -127,6 +133,7 @@
 <script src="assets/js/settings.js"></script>
 <script src="asstes/js/staff.js"></script>
 <script src="assets/js/warehouse.js"></script>
+<script src="assets/js/order.js"></script>
 
 </body>
 

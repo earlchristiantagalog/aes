@@ -19,7 +19,8 @@ $pageName = basename($_SERVER['SCRIPT_NAME']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - AES</title>
-
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -262,6 +263,9 @@ $pageName = basename($_SERVER['SCRIPT_NAME']);
             </a>
             <a href="orders.php" class="sb-link <?= $pageName == 'orders.php' ? 'active' : '' ?>">
                 <i class="bi bi-receipt"></i> <span>Orders</span>
+            </a>
+            <a href="warehouse.php" class="sb-link <?= $pageName == 'warehouse.php' ? 'active' : '' ?>">
+                <i class="bi bi-house"></i> <span>Warehouse</span>
             </a>
 
             <span class="sb-section-label">System</span>
